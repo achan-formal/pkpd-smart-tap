@@ -57,11 +57,11 @@ gp.setup(IR_OUT,gp.IN)
 valve = 10 # physical pin 10
 
 pi.set_mode(valve, pigpio.OUTPUT)
-pi.set_pull_up_down(valve, pigpio.PUD_DOWN)
+pi.write(valve, 0)
 
 testclk = 0
 while True:
-   # if testclk == 0: # testing code
+   # if testclk == 0: # loops tap_on between on/off for testing
       # tap_on = True
       # testclk = 1
       # time.sleep(3.0)
