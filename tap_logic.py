@@ -54,14 +54,14 @@ gp.setup(IR_OUT,gp.IN)
         # break
         
 # ---------------------Valve----------------------
-valve = 10 # physical pin 10
+valve = 15 # physical pin 10
 
 pi.set_mode(valve, pigpio.OUTPUT)
 pi.write(valve, 0)
 
 testclk = 0
 while True:
-   # if testclk == 0: # loops tap_on between on/off for testing
+   # if testclk == 0: # testing code
       # tap_on = True
       # testclk = 1
       # time.sleep(3.0)
@@ -72,10 +72,10 @@ while True:
    try: # IR response
       if (not gp.input(IR_OUT)) == True: # if detected
          tap_on = True
-         print("presence detected")
+         # print("presence detected")
       elif (not gp.input(IR_OUT)) == False: # if not detected
          tap_on = False
-         print("presence not detected")
+         # print("presence not detected")
    except KeyboardInterrupt:
       gp.cleanup()
       break
@@ -89,7 +89,7 @@ while True:
    except KeyboardInterrupt:
          gp.cleanup()
          break
-   time.sleep(1.0)
+   time.sleep(0.1)
 
 # ---------------------PRINT----------------------
 # WIP
