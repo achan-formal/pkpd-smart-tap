@@ -132,6 +132,9 @@ CUSTOM_MODES_FILE = "custom_modes.json"
 water_usage_history = []  # Store timestamps and usage
 MAX_HISTORY_ENTRIES = 100
 
+# api force tap cooldown
+api_override_cooldown = 0
+
 # ------------------------ Flow Sensor Callback ---------------------------
 def flow_callback(gpio, level, tick):
     """Callback function for flow sensor pulses"""
@@ -402,7 +405,9 @@ def wash_mode():
     finally:
         pi.write(VALVE_PIN, 0)
         tap_on = False
-        set_led('off')
+        set_led('red', 0)
+        set_led('green', 0)
+        set_led('blue', 0)
         mode_active = False
 
 # ------------------------ Main Control Functions ---------------------------
@@ -443,7 +448,9 @@ def stop_current_mode():
         if mode_thread:
             mode_thread.join(timeout=2)
         pi.write(VALVE_PIN, 0)
-        set_led('off')
+        set_led('red', 0)
+        set_led('green', 0)
+        set_led('blue', 0)
         mode_active = False
         return True
     return False
@@ -588,7 +595,9 @@ def main():
         # Cleanup
         pi.write(VALVE_PIN, 0)
         pi.write(BUZZER_PIN, 0)
-        set_led('off')
+        set_led('red', 0)
+        set_led('green', 0)
+        set_led('blue', 0)
         pi.stop()
         gp.cleanup()
         print("✅ AuraFlow Smart Tap stopped.")
