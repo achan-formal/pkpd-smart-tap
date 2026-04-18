@@ -563,6 +563,9 @@ def main():
     print("   Water flow tracking active - Tariq Shahmeer (20297244)")
     print("Press Ctrl+C to exit")
     print("=" * 60 + "\n")
+
+    # global decoration for var used in loop
+    global api_override_cooldown
     
     # Main loop for IR detection and flow rate display
     last_display_time = time.time()
