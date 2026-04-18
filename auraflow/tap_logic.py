@@ -480,12 +480,12 @@ def default_tap_operation():
         if not tap_on:  # when detected, if not already on, toggle to on
             tap_on = True
             pi.write(VALVE_PIN, 1)
-            print("👋 IR: Tap turned ON")
+            print("\nIR: Tap turned ON")
     else:  # not detected
         if tap_on:  # when not detected, if not already off, toggle to off
             tap_on = False
             pi.write(VALVE_PIN, 0)
-            print("👋 IR: Tap turned OFF")
+            print("\nIR: Tap turned OFF")
 
 # wash mode manager
 def wash_mode_manager():
