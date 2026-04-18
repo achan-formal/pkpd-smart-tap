@@ -465,12 +465,12 @@ def default_tap_operation():
     if config.locked:
         # Locked, don't respond
         return
-    if config.api_tap_on:
+    if config.api_tap_on == True:
         tap_on = True
         pi.write(VALVE_PIN, 1)
         print("APP: Tap turned ON")
         return
-    elif not config.api_tap_on:
+    elif config.api_tap_on == False:
         tap_on = False
         pi.write(VALVE_PIN, 0)
         print("APP: Tap turned OFF")
