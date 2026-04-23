@@ -134,6 +134,7 @@ MAX_HISTORY_ENTRIES = 100
 
 # api force tap cooldown
 api_override_cooldown = 0
+api_tapon_laststate = None
 
 # ------------------------ Flow Sensor Callback ---------------------------
 def flow_callback(gpio, level, tick):
@@ -466,26 +467,33 @@ def default_tap_operation():
         # Locked, don't respond
         return
     if config.api_tap_on == True:
-        tap_on = True
-        pi.write(VALVE_PIN, 1)
-        print("APP: Tap turned ON")
-        return
-    elif config.api_tap_on == False:
-        tap_on = False
-        pi.write(VALVE_PIN, 0)
-        print("APP: Tap turned OFF")
-    
-    # Check IR sensor (active low: 0 when detected)
-    if gp.input(IR_SENSOR_PIN) == 0:  # detected
-        if not tap_on:  # when detected, if not already on, toggle to on
+        if not api_tapon_laststate == True:
+            print("APP: Tap turned ON")
             tap_on = True
             pi.write(VALVE_PIN, 1)
-            print("\nIR: Tap turned ON")
-    else:  # not detected
-        if tap_on:  # when not detected, if not already off, toggle to off
+            api_tapon_laststate = True
+        return
+    elif config.api_tap_on == False:
+        if not api_tapon_laststate == False:
+            print("APP: Tap turned OFF")
             tap_on = False
             pi.write(VALVE_PIN, 0)
-            print("\nIR: Tap turned OFF")
+            api_tapon_laststate = False
+        return
+    elif config.api_tap_on == None:
+        # Check IR sensor (active low: 0 when detected)
+        if gp.input(IR_SENSOR_PIN) == 0:  # detected
+            if not tap_on:  # when detected, if not already on, toggle to on
+                tap_on = True
+                pi.write(VALVE_PIN, 1)
+                print("\nIR: Tap turned ON")
+        else:  # not detected
+            if tap_on:  # when not detected, if not already off, toggle to off
+                tap_on = False
+                pi.write(VALVE_PIN, 0)
+                print("\nIR: Tap turned OFF")
+        api_tapon_laststate = None
+        return
 
 # wash mode manager
 def wash_mode_manager():
