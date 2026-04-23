@@ -36,12 +36,12 @@ def get_water_status():
 def lock_tap():
     """Lock the water tap"""
     config.api_tap_on = False
-    config.config.locked = True
+    config.locked = True
 
 @app.route('/unlock', methods=['POST'])
 def unlock_tap():
     """Unlock the water tap"""
-    config.config.locked = False
+    config.locked = False
 
 @app.route('/wash/start', methods=['GET', 'POST'])
 def wash_start():
