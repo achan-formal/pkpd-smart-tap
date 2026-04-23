@@ -580,9 +580,12 @@ def main():
     try:
         while True:
             # api force tap on/off override cooldown (3s)
-            api_override_cooldown += 0.05
-            if api_override_cooldown == 3:
-                config.api_tap_on = None
+            if not config.api_tap_on == None:
+                api_override_cooldown += 0.05
+                if api_override_cooldown >= 3:
+                    config.api_tap_on = None
+                    api_override_cooldown = 0
+                    print("API override expired - IR sensor re-enabled")
             
             if config.wash == True or config.wash == False:
                 wash_mode_manager()
