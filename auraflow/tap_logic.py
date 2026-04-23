@@ -132,9 +132,8 @@ CUSTOM_MODES_FILE = "custom_modes.json"
 water_usage_history = []  # Store timestamps and usage
 MAX_HISTORY_ENTRIES = 100
 
-# api force tap cooldown
-api_override_cooldown = 0
-api_tapon_laststate = None
+# last state of config.api_tap_on
+api_tapon_laststate = False
 
 # ------------------------ Flow Sensor Callback ---------------------------
 def flow_callback(gpio, level, tick):
@@ -457,8 +456,9 @@ def stop_current_mode():
     return False
 
 def default_tap_operation():
-    """Handle default tap operation (hiearchy: mode> lock > api > IR)"""
-    global tap_on, api_tapon_laststate
+    """Handle default tap operation (hiearchy: lock > IR > api)"""
+    global tap_on
+    global api_tapon_laststate
     
     if mode_active:
         # In mode, don't respond to IR
@@ -472,15 +472,11 @@ def default_tap_operation():
             tap_on = True
             pi.write(VALVE_PIN, 1)
             api_tapon_laststate = True
-        return
-    elif config.api_tap_on == False:
+        return            
+    elif config.api_tap_on == False or config.api_tap_on == None:
         if not api_tapon_laststate == False:
             print("APP: Tap turned OFF")
-            tap_on = False
-            pi.write(VALVE_PIN, 0)
             api_tapon_laststate = False
-        return
-    elif config.api_tap_on == None:
         # Check IR sensor (active low: 0 when detected)
         if gp.input(IR_SENSOR_PIN) == 0:  # detected
             if not tap_on:  # when detected, if not already on, toggle to on
@@ -492,7 +488,6 @@ def default_tap_operation():
                 tap_on = False
                 pi.write(VALVE_PIN, 0)
                 print("\nIR: Tap turned OFF")
-        api_tapon_laststate = None
         return
 
 # wash mode manager
@@ -571,22 +566,11 @@ def main():
     print("   Water flow tracking active - Tariq Shahmeer (20297244)")
     print("Press Ctrl+C to exit")
     print("=" * 60 + "\n")
-
-    # global decoration for var used in loop
-    global api_override_cooldown
     
     # Main loop for IR detection and flow rate display
     last_display_time = time.time()
     try:
         while True:
-            # api force tap on/off override cooldown (3s)
-            if not config.api_tap_on == None:
-                api_override_cooldown += 0.05
-                if api_override_cooldown >= 3:
-                    config.api_tap_on = None
-                    api_override_cooldown = 0
-                    print("API override expired - IR sensor re-enabled")
-            
             if config.wash == True or config.wash == False:
                 wash_mode_manager()
             else:
