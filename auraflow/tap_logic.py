@@ -90,7 +90,7 @@ FLOW_SENSOR_PIN = 8  # Physical pin 8, GPIO 14
 IR_SENSOR_PIN = 3    # Physical pin 3, GPIO 2
 
 # Valve control (via relay)
-VALVE_PIN = 10       # Physical pin 10, GPIO 15
+VALVE_PIN = 15       # Physical pin 10, GPIO 15 # use GPIO numbering for this one
 
 # Buzzer
 BUZZER_PIN = 12      # Physical pin 12, GPIO 18
