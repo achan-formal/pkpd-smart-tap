@@ -466,25 +466,28 @@ def default_tap_operation():
     if config.locked:
         # Locked, don't respond
         set_led("red", 1)  # Turn on red LED when locked
+        set_led("yellow", 0)  # Ensure yellow is off when locked
         return
     else:
         set_led("red", 0)  # Turn off red LED when not locked
     
     if config.api_tap_on == True:
+        set_led("yellow", 1)  # Turn on yellow LED for API forced on
         if not api_tapon_laststate == True:
             print("APP: Tap turned ON")
             tap_on = True
             pi.write(VALVE_PIN, 1)
             api_tapon_laststate = True
             buzzer_beep(0.2)  # Beep when turning on
-            set_led("yellow", 1)  # Turn on yellow LED for API forced on
-        set_led("green", 0 if not tap_on else 1)  # Update green LED based on water flow
+        set_led("green", 1 if tap_on else 0)  # Update green LED based on water flow
         return            
     elif config.api_tap_on == False or config.api_tap_on == None:
+        set_led("yellow", 0)  # Turn off yellow LED when API not forcing on
         if not api_tapon_laststate == False:
             print("APP: Tap turned OFF")
             api_tapon_laststate = False
-            set_led("yellow", 0)  # Turn off yellow LED when API not forcing on
+            if tap_on:  # Only beep if actually turning off
+                buzzer_beep(0.2)  # Beep when turning off
         # Check IR sensor (active low: 0 when detected)
         if gp.input(IR_SENSOR_PIN) == 0:  # detected
             if not tap_on:  # when detected, if not already on, toggle to on
