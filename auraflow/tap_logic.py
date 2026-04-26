@@ -17,7 +17,7 @@
 # 13         | GPIO 27         | LED Red       | Red LED for lock/error indication
 # 14         | Ground          | -             | Ground
 # 15         | GPIO 22         | LED Green     | Green LED for active mode indication
-# 16         | GPIO 23         | LED Blue      | Blue LED for mode in progress
+# 16         | GPIO 23         | LED Yellow    | Yellow LED for mode in progress
 # 17         | 3.3V Power      | -             | 3.3V power
 # 18         | GPIO 24         | -             | Available
 # 19         | GPIO 10 (SPI0 MOSI)| -          | Available
@@ -61,9 +61,9 @@
 # Pin 12: GPIO 18 - Buzzer control
 
 # ----------------------- LEDs -----------------------------------
-# Pin 13: GPIO 27 - Red LED (Lock/Error)
+# Pin 13: GPIO 27 - Red LED (Lock)
 # Pin 15: GPIO 22 - Green LED (Active mode)
-# Pin 16: GPIO 23 - Blue LED (Mode in progress)
+# Pin 16: GPIO 23 - Yellow LED (Mode in progress)
 
 # ===================================================================
 # CODE AUTHOR: Chan Tsz Ho (20300533), Tariq Shahmeer (20297244)
@@ -98,7 +98,7 @@ BUZZER_PIN = 12      # Physical pin 12, GPIO 18
 # LEDs
 LED_RED_PIN = 13     # Physical pin 13, GPIO 27
 LED_GREEN_PIN = 15   # Physical pin 15, GPIO 22
-LED_BLUE_PIN = 16    # Physical pin 16, GPIO 23
+LED_YELLOW_PIN = 16    # Physical pin 16, GPIO 23
 
 # ------------------------ Global Variables ---------------------------
 flow_ttime = 0.0
@@ -126,7 +126,7 @@ pulse_interval_count = 0
 FLOW_RATE_SMOOTHING_FACTOR = 0.3  # For exponential moving average
 
 # Custom modes file
-CUSTOM_MODES_FILE = "custom_modes.json"
+# CUSTOM_MODES_FILE = "custom_modes.json"
 
 # Water usage history for tracking
 water_usage_history = []  # Store timestamps and usage
@@ -229,17 +229,13 @@ def get_daily_water_usage():
 
 # ------------------------ LED Control Functions ---------------------------
 def set_led(color, state):
-    """Control LEDs: color can be 'red', 'green', 'blue', or 'off'"""
+    """Control LEDs: color can be 'red', 'green', or 'yellow'"""
     if color == 'red':
         gp.output(LED_RED_PIN, state)
     elif color == 'green':
         gp.output(LED_GREEN_PIN, state)
-    elif color == 'blue':
-        gp.output(LED_BLUE_PIN, state)
-    elif color == 'off':
-        gp.output(LED_RED_PIN, 0)
-        gp.output(LED_GREEN_PIN, 0)
-        gp.output(LED_BLUE_PIN, 0)
+    elif color == 'yellow':
+        gp.output(LED_YELLOW_PIN, state)
 
 def led_blink(color, duration, interval=0.2):
     """Blink LED for specified duration"""
@@ -282,7 +278,7 @@ def notification_sequence(sequence_type):
     elif sequence_type == "end":
         # Long beep
         buzzer_beep(0.5)
-        led_blink('blue', 1, 0.3)
+        led_blink('yellow', 1, 0.3)
     elif sequence_type == "countdown":
         # Short beep
         buzzer_beep(0.1)
@@ -341,6 +337,7 @@ def api_reset_water_usage():
     return {"status": "success", "message": "Water usage reset"}
 
 # ------------------------ Mode Functions ---------------------------
+# OBSOLETE
 def wash_mode():
     """Wash mode: Wet hands, pause for soap, rinse"""
     global mode_active, mode_stop_event, tap_on
@@ -354,7 +351,7 @@ def wash_mode():
         # Phase 1: Wet hands (3 seconds)
         print("[Phase 1/3] Wetting hands...")
         notification_sequence("start")
-        set_led('blue', 1)
+        set_led('yellow', 1)
         pi.write(VALVE_PIN, 1)
         tap_on = True
         
@@ -407,10 +404,11 @@ def wash_mode():
         tap_on = False
         set_led('red', 0)
         set_led('green', 0)
-        set_led('blue', 0)
+        set_led('yellow', 0)
         mode_active = False
 
 # ------------------------ Main Control Functions ---------------------------
+# OBSOLETE
 def start_mode(mode):
     """Start a specific mode"""
     global current_mode, mode_active, mode_thread, mode_stop_event
@@ -450,8 +448,8 @@ def stop_current_mode():
         pi.write(VALVE_PIN, 0)
         set_led('red', 0)
         set_led('green', 0)
-        set_led('blue', 0)
-        mode_active = False
+        set_led('yellow', 0)
+        mode_active = "Falselock"
         return True
     return False
 
@@ -538,7 +536,7 @@ def main():
     gp.setup(IR_SENSOR_PIN, gp.IN, pull_up_down=gp.PUD_UP)
     gp.setup(LED_RED_PIN, gp.OUT)
     gp.setup(LED_GREEN_PIN, gp.OUT)
-    gp.setup(LED_BLUE_PIN, gp.OUT)
+    gp.setup(LED_YELLOW_PIN, gp.OUT)
     
     # Initialize pigpio pins
     pi.set_mode(FLOW_SENSOR_PIN, pigpio.INPUT)
@@ -570,7 +568,7 @@ def main():
     print(f"   IR Sensor: GPIO {IR_SENSOR_PIN} (Pin 3)")
     print(f"   Valve: GPIO {VALVE_PIN} (Pin 10)")
     print(f"   Buzzer: GPIO {BUZZER_PIN} (Pin 12)")
-    print(f"   LEDs: Red={LED_RED_PIN}, Green={LED_GREEN_PIN}, Blue={LED_BLUE_PIN}")
+    print(f"   LEDs: Red={LED_RED_PIN}, Green={LED_GREEN_PIN}, Yellow={LED_YELLOW_PIN}")
     
     print("\n💧 Flow Sensor Status:")
     print(f"   Calibration Factor: {flow_calibration_factor} pulses/L")
@@ -582,7 +580,7 @@ def main():
     print("   Water flow tracking active - Tariq Shahmeer (20297244)")
     print("Press Ctrl+C to exit")
     print("=" * 60 + "\n")
-    
+
     # Main loop for IR detection and flow rate display
     last_display_time = time.time()
     try:
@@ -611,7 +609,7 @@ def main():
         pi.write(BUZZER_PIN, 0)
         set_led('red', 0)
         set_led('green', 0)
-        set_led('blue', 0)
+        set_led('yellow', 0)
         pi.stop()
         gp.cleanup()
         print("✅ AuraFlow Smart Tap stopped.")
