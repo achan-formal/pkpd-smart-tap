@@ -455,8 +455,7 @@ def stop_current_mode():
 
 def default_tap_operation():
     """Handle default tap operation (hiearchy: lock > IR > api)"""
-    global tap_on
-    global api_tapon_laststate
+    global tap_on, api_tapon_laststate, VALVE_PIN
     
     if mode_active:
         # In mode, don't respond to IR
